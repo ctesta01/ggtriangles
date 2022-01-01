@@ -58,8 +58,11 @@ vaccines were widely made available to adults.
 ![nyt map of where covid death rates increased since vaccines became available](img/nyt_increased_orig.png)
 ![nyt map of where covid death rates decreased since vaccines became available](img/nyt_decreased_orig.png)
 
-I spent some time re-creating something similar (though not exactly the same)
-as the NYT analysis to demonstrate that functionality and use-case for `ggtriangles`.
+These maps were originally featured here: <https://www.nytimes.com/interactive/2021/12/28/us/covid-deaths.html> 
+
+I spent some time re-creating something similar (though not exactly the
+same) as the NYTimes analysis and graphic to demonstrate that functionality and
+use-case for `ggtriangles`.
 
 ![](img/nyt_increased_counties.png)
 ![](img/nyt_decreased_counties.png)
