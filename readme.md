@@ -17,7 +17,7 @@ Here's the code:
 
     plt <- datasets::sleep %>% 
       ggplot(aes(x = ID, y = group, z = extra)) + 
-      geom_triangles(width = 0.1, height_scale = 0.1) + 
+      geom_triangles(width = 0.01, height_scale = 0.02) + 
       xlab("Individual") + 
       ylab("Drug Given") + 
       ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") + 
@@ -26,8 +26,8 @@ Here's the code:
     legend <-
       draw_geom_triangles_size_legend(
       z_values = c(-max(sleep$extra), 0, max(sleep$extra)),
-      height_scale = 0.1,
-      width = 0.05,
+      height_scale = 0.035,
+      width = 0.04,
       labels = c('decrease in\nsleep', 'no change', 'increase in\nsleep')
       )
     
@@ -49,8 +49,10 @@ Here's the code:
 
     iris %>%
       ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length)) +
-      geom_triangles(width = 0.1, height_scale = 0.05)
-      
+      geom_triangles(width = 0.01, height_scale = 0.005) +
+      ggtitle("Sepal length, width, and petal length of iris flowers",
+        "Petal length is shown by the height of each triangle")
+     
 ![a scatterplot of triangles with varying heights showing the Sepal Length, Sepal width, and petal length on the x and y axes and by the height of the triangles](img/basic.png)
 
 ### to add a legend
@@ -63,15 +65,20 @@ A great addition to this project would be an improved `draw_key` for
 
     library(patchwork)
 
+    # some example data
     z_values <- c(5,-.5,3,1.5,-7)/15
 
+    # our plot of interest showing the data
     plt <- ggplot(data.frame(x=1:5, y = 1:5, z = z_values), aes(x=x,y=y,z=z)) +
-        geom_triangles(width = 0.1)
+        geom_triangles(width = 0.01, height_scale = 0.1)
 
-    legend <- draw_geom_triangles_size_legend(z_values = c(-5,0,5)/15, height_scale = 1.5, width = 0.1)
+    # a legend for the plot
+    legend <- draw_geom_triangles_size_legend(z_values = z_values, height_scale = .25, width = 0.05)
 
+    # a blank plot to help with layout
     blank_plot <- ggplot() + theme_void()
 
+    # set our plot and legend side-by-side using patchwork syntax
     (plt + (blank_plot / legend / blank_plot)) +
       plot_layout(ncol = 2, nrow = 1, widths = c(1, .25))
 

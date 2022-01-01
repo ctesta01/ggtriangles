@@ -20,7 +20,7 @@ library(patchwork)
 
 plt <- datasets::sleep %>% 
   ggplot(aes(x = ID, y = group, z = extra)) + 
-  geom_triangles(width = 0.1, height_scale = 0.1) + 
+  geom_triangles(width = 0.01, height_scale = 0.02) + 
   xlab("Individual") + 
   ylab("Drug Given") + 
   ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") + 
@@ -35,8 +35,8 @@ Now let's add a legend:
 legend <-
   draw_geom_triangles_size_legend(
   z_values = c(-max(sleep$extra), 0, max(sleep$extra)),
-  height_scale = 0.1,
-  width = 0.05,
+  height_scale = 0.035,
+  width = 0.04,
   labels = c('decrease in\nsleep', 'no change', 'increase in\nsleep')
   )
 

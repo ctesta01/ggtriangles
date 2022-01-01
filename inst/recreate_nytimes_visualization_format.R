@@ -30,8 +30,8 @@ nyt2020avg <- nyt2020 %>% group_by(geoid, county, state) %>%
   # note that we're filtering for data after march 1st from 2020 so that we're
   # comparing rates during COVID-2020 to rates from COVID-2021 (== all of 2021)
   summarize(avg_death_rate = mean(deaths_avg_per_100k, na.rm=T))
-  # these data which are being summarized, it's important to note, are
-  # rolling 7-day averages which omit anomalous days.
+# these data which are being summarized, it's important to note, are
+# rolling 7-day averages which omit anomalous days.
 
 
 # calculate the 2021-average of the 7-day rolling average death rate

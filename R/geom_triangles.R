@@ -34,27 +34,12 @@ GeomTriangles <- ggproto("GeomTriangles", Geom,
 
                           coords <- coord$transform(data, panel_params)
 
-                          # x_scale_factor <- (coords[['x']] / data[['x']]) %>% na.omit() %>% as.numeric()
-                          # y_scale_factor <- (coords[['y']] / data[['y']]) %>% na.omit() %>% as.numeric()
-                          # x_scale_factor <- x_scale_factor[is.finite(x_scale_factor)]
-                          # y_scale_factor <- y_scale_factor[is.finite(y_scale_factor)]
-                          # if (length(x_scale_factor) == 0) x_scale_factor <- 1 # if scale factor cannot be detected, assume 1
-                          # if (length(y_scale_factor) == 0) y_scale_factor <- 1
-                          # x_scale_factor <- max(x_scale_factor)
-                          # y_scale_factor <- max(y_scale_factor)
-                          # if (is.na(x_scale_factor)) x_scale_factor <- 1 # if scale factor cannot be detected, assume 1
-                          # if (is.na(y_scale_factor)) y_scale_factor <- 1
-                          x_scale_factor <- 1
-                          y_scale_factor <- 1
-
-                          print(x_scale_factor)
-
                           triangle_df <-
                             tibble(
                               group = 1:nrow(coords),
-                              point1 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] - width[[i]] * x_scale_factor, y[[i]]))}),
-                              point2 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] + width[[i]] * x_scale_factor, y[[i]]))}),
-                              point3 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]], y[[i]] + z[[i]]*height_scale[[i]]*y_scale_factor))})
+                              point1 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] - width[[i]], y[[i]]))}),
+                              point2 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] + width[[i]], y[[i]]))}),
+                              point3 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]], y[[i]] + z[[i]]*height_scale[[i]]))})
                             )
 
                           triangle_df <- triangle_df %>% tidyr::pivot_longer(
@@ -97,20 +82,22 @@ GeomTriangles <- ggproto("GeomTriangles", Geom,
 #' @examples
 #'
 #' # example 1
+#' iris %>%
+#'   ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length)) +
+#'   geom_triangles(width = 0.01, height_scale = 0.005) +
+#'   ggtitle("Sepal length, width, and petal length of iris flowers",
+#'   "Petal length is shown by the height of each triangle")
+#'
+#' # example 2
 #' mtcars %>%
 #' ggplot(aes(x = mpg, y = disp, z = cyl, color = hp, fill = hp)) +
-#'   geom_triangles(height_scale = 3) +
+#'   geom_triangles(width = 0.01, height_scale = .007) +
 #'   scale_fill_viridis_c() +
 #'   scale_color_viridis_c()
 #'
-#' # example 2
-#' iris %>%
-#'   ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length)) +
-#'   geom_triangles(width = 0.1, height_scale = 0.05)
-#'
 #' # example 3
 #' ggplot(data.frame(x=1:5, y = 1:5, z = (c(5,-.5,3,1.5,-7)/15)), aes(x=x,y=y,z=z)) +
-#'   geom_triangles(width = 0.1)
+#'   geom_triangles(width = 0.01, height_scale = 0.1)
 #'
 #' # example with legend using patchwork
 #' library(patchwork)
@@ -118,9 +105,9 @@ GeomTriangles <- ggproto("GeomTriangles", Geom,
 #' z_values <- c(5,-.5,3,1.5,-7)/15
 #'
 #' plt <- ggplot(data.frame(x=1:5, y = 1:5, z = z_values), aes(x=x,y=y,z=z)) +
-#'     geom_triangles(width = 0.1)
+#'     geom_triangles(width = 0.01, height_scale = 0.1)
 #'
-#' legend <- draw_geom_triangles_size_legend(z_values = z_values, height_scale = 1.5, width = 0.1)
+#' legend <- draw_geom_triangles_size_legend(z_values = z_values, height_scale = .25, width = 0.05)
 #'
 #' blank_plot <- ggplot() + theme_void()
 #'
