@@ -120,30 +120,28 @@ state_centers_xy <- sf::st_coordinates(state_centers)
 state_centers %<>% bind_cols(state_centers_xy %>% as.data.frame())
 state_centers %<>% left_join(state_abbreviations)
 
-# as NYTimes does, we're going to ignore small changes in the
-# 2020 and 2021 average death rates
-lower_threshold <- 0.1
-
+# specify common scaling factors
+height_scale <- 2e-2
+width_scale <- 2e-3
 
 ggplot() +
-  # county layer
   geom_sf(data = counties,
           mapping = aes(
-            fill = factor(change > lower_threshold),
-            size = factor(change > lower_threshold) %>% forcats::fct_explicit_na(na_level = "FALSE"),
-            color = factor(change > lower_threshold)
+            fill = factor(change > 0),
+            size = factor(change > 0) %>% forcats::fct_explicit_na(na_level = "FALSE"),
+            color = factor(change > 0)
           )) +
   geom_sf(data = states, aes(), size = 0.5, color = 'black', fill = NA) +
   geom_triangles(
     data =
       bind_cols(
-        counties %>% filter(change > lower_threshold),
-        counties %>% filter(change > lower_threshold) %>%
+        counties %>% filter(change > 0),
+        counties %>% filter(change > 0) %>%
           sf::st_centroid() %>%
           sf::st_coordinates(.) %>%
           as.data.frame()),
     mapping = aes(x = X, y = Y, z = change),
-    width = 5, height_scale = 5,
+    width = width_scale, height_scale = height_scale,
     fill = '#c0392b', color = '#c0392b') +
   geom_text(
     data = state_centers,
@@ -153,7 +151,7 @@ ggplot() +
   scale_fill_manual(values = c(`TRUE` = 'lightpink', `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = "#c0392b", `FALSE` = 'white')) +
-  ggtitle("Counties where 2021 death rates were greater than 2020 death rates") +
+  ggtitle("Counties where the average of 2021 weekly rolling average death rates were\ngreater than the average of 2020 weekly rolling average death rates beginning in March") +
   theme_void() +
   theme(legend.position = 'none', plot.title = element_text(hjust = 0.5, face = 'bold'))
 
@@ -166,21 +164,21 @@ upper_threshold = -lower_threshold
 ggplot() +
   geom_sf(data = counties,
           mapping = aes(
-            fill = factor(change < upper_threshold),
-            size = factor(change < upper_threshold) %>% forcats::fct_explicit_na(na_level = "FALSE"),
-            color = factor(change < upper_threshold)
+            fill = factor(change < 0),
+            size = factor(change < 0) %>% forcats::fct_explicit_na(na_level = "FALSE"),
+            color = factor(change < 0)
           )) +
   geom_sf(data = states, aes(), size = 0.5, color = 'black', fill = NA) +
   geom_triangles(
     data =
       bind_cols(
-        counties %>% filter(change < upper_threshold),
-        counties %>% filter(change < upper_threshold) %>%
+        counties %>% filter(change < 0),
+        counties %>% filter(change < 0) %>%
           sf::st_centroid() %>%
           sf::st_coordinates(.) %>%
           as.data.frame()),
     mapping = aes(x = X, y = Y, z = change),
-    width = 5, height_scale = 6,
+    width = width_scale, height_scale = height_scale,
     fill = darkgreen, color = darkgreen) +
   geom_text(
     data = state_centers,
@@ -190,7 +188,7 @@ ggplot() +
   scale_fill_manual(values = c(`TRUE` = lightgreen, `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = darkgreen, `FALSE` = 'white')) +
-  ggtitle("Counties where 2021 death rates were less than 2020 death rates") +
+  ggtitle("Counties where the average of 2021 weekly rolling average death rates was\nless than than the average of 2020 weekly rolling average death rates beginning in March") +
   theme_void() +
   theme(legend.position = 'none', plot.title = element_text(hjust = 0.5, face = 'bold'))
 

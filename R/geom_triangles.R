@@ -34,16 +34,20 @@ GeomTriangles <- ggproto("GeomTriangles", Geom,
 
                           coords <- coord$transform(data, panel_params)
 
-                          x_scale_factor <- (coords[['x']] / data[['x']]) %>% na.omit() %>% as.numeric()
-                          y_scale_factor <- (coords[['y']] / data[['y']]) %>% na.omit() %>% as.numeric()
-                          x_scale_factor <- x_scale_factor[is.finite(x_scale_factor)]
-                          y_scale_factor <- y_scale_factor[is.finite(y_scale_factor)]
-                          if (length(x_scale_factor) == 0) x_scale_factor <- 1 # if scale factor cannot be detected, assume 1
-                          if (length(y_scale_factor) == 0) y_scale_factor <- 1
-                          x_scale_factor <- max(x_scale_factor)
-                          y_scale_factor <- max(y_scale_factor)
-                          if (is.na(x_scale_factor)) x_scale_factor <- 1 # if scale factor cannot be detected, assume 1
-                          if (is.na(y_scale_factor)) y_scale_factor <- 1
+                          # x_scale_factor <- (coords[['x']] / data[['x']]) %>% na.omit() %>% as.numeric()
+                          # y_scale_factor <- (coords[['y']] / data[['y']]) %>% na.omit() %>% as.numeric()
+                          # x_scale_factor <- x_scale_factor[is.finite(x_scale_factor)]
+                          # y_scale_factor <- y_scale_factor[is.finite(y_scale_factor)]
+                          # if (length(x_scale_factor) == 0) x_scale_factor <- 1 # if scale factor cannot be detected, assume 1
+                          # if (length(y_scale_factor) == 0) y_scale_factor <- 1
+                          # x_scale_factor <- max(x_scale_factor)
+                          # y_scale_factor <- max(y_scale_factor)
+                          # if (is.na(x_scale_factor)) x_scale_factor <- 1 # if scale factor cannot be detected, assume 1
+                          # if (is.na(y_scale_factor)) y_scale_factor <- 1
+                          x_scale_factor <- 1
+                          y_scale_factor <- 1
+
+                          print(x_scale_factor)
 
                           triangle_df <-
                             tibble(
