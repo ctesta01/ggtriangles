@@ -68,4 +68,5 @@ use-case for `ggtriangles`.
 ![](img/nyt_decreased_counties.png)
 
 You can check out how I did it in the `vignettes/recreating_nytimes_viz.Rmd`
-document.
+document. Note that these figures are provided purely as examples and not meant
+for decision making purposes or scientific usage. 

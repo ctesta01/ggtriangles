@@ -256,7 +256,4 @@ ggplot() +
 
 ggsave(here("img/nyt_decreased_counties.png"), width = 10, height = 8)
 ggsave(here("img/nyt_decreased_counties.jpeg"), width = 10, height = 8)
-
-
-
 ```
