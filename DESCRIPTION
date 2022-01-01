@@ -1,0 +1,22 @@
+Package: ggtriangles
+Type: Package
+Title: Implements geom_triangles
+Version: 0.1.0
+Author: Christian Testa
+Maintainer: Christian Testa <testa101@gmail.com>
+Description: ggtriangles provides the geom_triangles function, a ggplot2 
+  geom layer which will plot the x,y data provided as triangles with 
+  height given by argument z. 
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Depends:
+  dplyr,
+  tibble,
+  tidyr,
+  ggplot2
+RoxygenNote: 7.1.2
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr

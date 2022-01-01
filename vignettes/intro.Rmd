@@ -1,0 +1,47 @@
+---
+title: "Intro to ggtriangles"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggtriangles)
+library(patchwork)
+
+plt <- datasets::sleep %>% 
+  ggplot(aes(x = ID, y = group, z = extra)) + 
+  geom_triangles(width = 0.1, height_scale = 0.1) + 
+  xlab("Individual") + 
+  ylab("Drug Given") + 
+  ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") + 
+  labs(caption = "Data from datasets::sleep")
+
+print(plt)
+```
+
+Now let's add a legend:
+
+```{r, fig.width = 9, fig.height = 5, out.width = '100%'}
+legend <-
+  draw_geom_triangles_size_legend(
+  z_values = c(-max(sleep$extra), 0, max(sleep$extra)),
+  height_scale = 0.1,
+  width = 0.05,
+  labels = c('decrease in\nsleep', 'no change', 'increase in\nsleep')
+  )
+
+blank_plot <- ggplot() + theme_void()
+
+(plt + (blank_plot / legend / blank_plot)) +
+  plot_layout(ncol = 2, nrow = 1, widths = c(1, .25))
+```
