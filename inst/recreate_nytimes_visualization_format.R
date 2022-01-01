@@ -121,8 +121,8 @@ state_centers %<>% bind_cols(state_centers_xy %>% as.data.frame())
 state_centers %<>% left_join(state_abbreviations)
 
 # specify common scaling factors
-height_scale <- 2e-2
-width_scale <- 2e-3
+height_scale <- 1.5e-2
+width_scale <- 1.5e-3
 
 ggplot() +
   geom_sf(data = counties,
