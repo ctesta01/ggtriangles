@@ -20,6 +20,8 @@ triangles with a horizontal base centered at position `(x,y)` with height `z`.
     iris %>%
       ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length)) +
       geom_triangles(width = 0.1, height_scale = 0.05)
+      
+![a scatterplot of triangles with varying heights showing the Sepal Length, Sepal width, and petal length on the x and y axes and by the height of the triangles](img/basic.png)
 
 ### to add a legend
 
@@ -53,14 +55,14 @@ I originally created this because I wanted to be able to render something like
 the NYTimes maps of where COVID-19 death rates had increased and decreased since
 vaccines were widely made available to adults.
 
-![nyt map of where covid death rates increased since vaccines became available](nyt_increased_orig.png)
-![nyt map of where covid death rates decreased since vaccines became available](nyt_decreased_orig.png)
+![nyt map of where covid death rates increased since vaccines became available](img/nyt_increased_orig.png)
+![nyt map of where covid death rates decreased since vaccines became available](img/nyt_decreased_orig.png)
 
 I spent some time re-creating something similar (though not exactly the same)
 as the NYT analysis to demonstrate that functionality and use-case for `ggtriangles`.
 
-![](nyt_increased_counties.png)
-![](nyt_decreased_counties.png)
+![](img/nyt_increased_counties.png)
+![](img/nyt_decreased_counties.png)
 
 You can check out how I did it in the `vignettes/recreating_nytimes_viz.Rmd`
 document.
