@@ -7,7 +7,37 @@ triangles with a horizontal base centered at position `(x,y)` with height `z`.
 
 ### an example plot using ggtriangles
 
+
 ![an example of a plot using geom_triangles that shows the results of a sleep study and whether drug 1 or 2 increased participants' sleep hours](img/sleep.png)
+
+Here's the code: 
+
+    library(ggtriangles)
+    library(patchwork) # we're using patchwork to add the legend
+
+    plt <- datasets::sleep %>% 
+      ggplot(aes(x = ID, y = group, z = extra)) + 
+      geom_triangles(width = 0.1, height_scale = 0.1) + 
+      xlab("Individual") + 
+      ylab("Drug Given") + 
+      ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") + 
+      labs(caption = "Data from datasets::sleep")
+    
+    legend <-
+      draw_geom_triangles_size_legend(
+      z_values = c(-max(sleep$extra), 0, max(sleep$extra)),
+      height_scale = 0.1,
+      width = 0.05,
+      labels = c('decrease in\nsleep', 'no change', 'increase in\nsleep')
+      )
+    
+    # we use a blank plot above and below the legend to make it take up 
+    # less vertical space
+    blank_plot <- ggplot() + theme_void()
+    
+    # compose our plot using patchwork
+    (plt + (blank_plot / legend / blank_plot)) +
+      plot_layout(ncol = 2, nrow = 1, widths = c(1, .25))
 
 
 ### to install
@@ -67,6 +97,6 @@ use-case for `ggtriangles`.
 ![](img/nyt_increased_counties.png)
 ![](img/nyt_decreased_counties.png)
 
-You can check out how I did it in the `vignettes/recreating_nytimes_viz.Rmd`
+You can check out how I did it in the [`inst/recreate_nytimes_visualization_format.R`](inst/recreate_nytimes_visualization_format.R)
 document. Note that these figures are provided purely as examples and not meant
 for decision making purposes or scientific usage. 
