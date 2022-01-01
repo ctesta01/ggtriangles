@@ -206,7 +206,7 @@ ggplot() +
   geom_text(
     data = state_centers, 
     mapping = aes(x = X, y = Y, label = state_abbv_med),
-    hjust = 0, vjust = 0
+    hjust = 0.5, vjust = 0, check_overlap = F, size = 2.5
   ) + 
   scale_fill_manual(values = c(`TRUE` = 'lightpink', `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
@@ -245,7 +245,7 @@ ggplot() +
   geom_text(
     data = state_centers, 
     mapping = aes(x = X, y = Y, label = state_abbv_med),
-    hjust = 0, vjust = 0
+    hjust = 0.5, vjust = 0, size = 2.5
   ) + 
   scale_fill_manual(values = c(`TRUE` = lightgreen, `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
