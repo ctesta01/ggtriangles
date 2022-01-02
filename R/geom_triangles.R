@@ -88,6 +88,13 @@ GeomTriangles <- ggproto("GeomTriangles", Geom,
 #'   ggtitle("Sepal length, width, and petal length of iris flowers",
 #'   "Petal length is shown by the height of each triangle")
 #'
+#' # example 1.2 -- using variable width
+#'  iris %>%
+#' ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length, width = Petal.Width*0.01)) +
+#'   geom_triangles(height_scale = 0.005) +
+#'  ggtitle("Sepal length, width, and petal length of iris flowers",
+#'          "Petal length is shown by the height of each triangle, and petal width by the width of each triangle")
+#'
 #' # example 2
 #' mtcars %>%
 #' ggplot(aes(x = mpg, y = disp, z = cyl, color = hp, fill = hp)) +
