@@ -13,8 +13,7 @@ triangles with a horizontal base centered at position `(x,y)` with height `z`.
 ### to install
 
     devtools::install_github("ctesta01/ggtriangles")
-
-
+    
 ### basic usage
 
     data.frame(x = 1:5) %>%
@@ -31,6 +30,8 @@ to represent sepal length and width](img/iris_example.png)
 
 ![ggtriangles example with mtcars dataset using the triangles height and width 
 to represent cylinders and horsepower](img/mtcars_example2.png)
+
+![ggtriangles also supports angles](img/angles_in_ggtriangles.png)
 
 
 ### motivation
