@@ -7,37 +7,7 @@ triangles with a horizontal base centered at position `(x,y)` with height `z`.
 
 ### an example plot using ggtriangles
 
-
 ![an example of a plot using geom_triangles that shows the results of a sleep study and whether drug 1 or 2 increased participants' sleep hours](img/sleep.png)
-
-Here's the code: 
-
-    library(ggtriangles)
-    library(patchwork) # we're using patchwork to add the legend
-
-    plt <- datasets::sleep %>% 
-      ggplot(aes(x = ID, y = group, z = extra)) + 
-      geom_triangles(width = 0.01, height_scale = 0.02) + 
-      xlab("Individual") + 
-      ylab("Drug Given") + 
-      ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") + 
-      labs(caption = "Data from datasets::sleep")
-    
-    legend <-
-      draw_geom_triangles_size_legend(
-      z_values = c(-max(sleep$extra), 0, max(sleep$extra)),
-      height_scale = 0.035,
-      width = 0.04,
-      labels = c('decrease in\nsleep', 'no change', 'increase in\nsleep')
-      )
-    
-    # we use a blank plot above and below the legend to make it take up 
-    # less vertical space
-    blank_plot <- ggplot() + theme_void()
-    
-    # compose our plot using patchwork
-    (plt + (blank_plot / legend / blank_plot)) +
-      plot_layout(ncol = 2, nrow = 1, widths = c(1, .25))
 
 
 ### to install
@@ -47,43 +17,20 @@ Here's the code:
 
 ### basic usage
 
-    iris %>%
-      ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length)) +
-      geom_triangles(width = 0.01, height_scale = 0.005) +
-      ggtitle("Sepal length, width, and petal length of iris flowers",
-        "Petal length is shown by the height of each triangle")
+    data.frame(x = 1:5) %>%
+      ggplot(aes(x = x, y = x, z = x)) +
+      geom_triangles()
      
-![a scatterplot of triangles with varying heights showing the Sepal Length, Sepal width, and petal length on the x and y axes and by the height of the triangles](img/basic.png)
-
-### to add a legend
-
-For now, I recommend using patchwork and combining your plots with a manually
-constructed legend you can create using `geom_triangles` and `geom_text`.
-
-A great addition to this project would be an improved `draw_key` for
-`GeomTriangles`, but I have not made that addition yet.
-
-    library(patchwork)
-
-    # some example data
-    z_values <- c(5,-.5,3,1.5,-7)/15
-
-    # our plot of interest showing the data
-    plt <- ggplot(data.frame(x=1:5, y = 1:5, z = z_values), aes(x=x,y=y,z=z)) +
-        geom_triangles(width = 0.01, height_scale = 0.1)
-
-    # a legend for the plot
-    legend <- draw_geom_triangles_size_legend(z_values = z_values, height_scale = .25, width = 0.05)
-
-    # a blank plot to help with layout
-    blank_plot <- ggplot() + theme_void()
-
-    # set our plot and legend side-by-side using patchwork syntax
-    (plt + (blank_plot / legend / blank_plot)) +
-      plot_layout(ncol = 2, nrow = 1, widths = c(1, .25))
+![a scatterplot of triangles with varying heights](img/simplest_example.png)
 
 
-![plot showing triangles on the diagonal with a legend showing an upward triangle labeled 'high' a horizontal dash for 'medium' and a down arrow for 'low'](img/basic_with_legend.png)
+### some more examples
+
+![ggtriangles example with iris dataset using the triangles height and width 
+to represent sepal length and width](img/iris_example.png)
+
+![ggtriangles example with mtcars dataset using the triangles height and width 
+to represent cylinders and horsepower](img/mtcars_example2.png)
 
 
 ### motivation

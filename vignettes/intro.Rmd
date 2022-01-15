@@ -19,8 +19,12 @@ library(ggtriangles)
 library(patchwork)
 
 plt <- datasets::sleep %>% 
-  ggplot(aes(x = ID, y = group, z = extra)) + 
-  geom_triangles(width = 0.01, height_scale = 0.02) + 
+  # no explicitly built support for categorical levels yet, so make sure you
+  # format data as numeric for x, y, z, and width
+  ggplot(aes(x = as.numeric(ID), y = as.numeric(group), z = extra)) +
+  geom_triangles(width_scale = .2, height_scale = .05) + 
+  scale_y_continuous(breaks = c(1,2)) + 
+  expand_limits(y = c(0.5, 2.5)) + 
   xlab("Individual") + 
   ylab("Drug Given") + 
   ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") + 
@@ -33,15 +37,67 @@ Now let's add a legend:
 
 ```{r, fig.width = 9, fig.height = 5, out.width = '100%'}
 legend <-
-  draw_geom_triangles_size_legend(
+  draw_geom_triangles_height_legend(
   z_values = c(-max(sleep$extra), 0, max(sleep$extra)),
-  height_scale = 0.035,
-  width = 0.04,
+  height_scale = 0.1,
+  width_scale = 0.2,
   labels = c('decrease in\nsleep', 'no change', 'increase in\nsleep')
   )
 
 blank_plot <- ggplot() + theme_void()
 
-(plt + (blank_plot / legend / blank_plot)) +
-  plot_layout(ncol = 2, nrow = 1, widths = c(1, .25))
+legend_component <- ((blank_plot / legend / blank_plot) +
+  plot_layout(ncol = 1, heights = c(.2, .6, .2)))
+
+(plt + legend_component) +
+  plot_layout(widths = c(1, .2))
+
+```
+
+
+
+
+```{r mtcars example}
+
+plt_orig <- mtcars %>%
+  tibble::rownames_to_column('name') %>%
+  ggplot(aes(x = mpg, y = disp, z = cyl, width = wt, color = hp, fill = hp, label = name)) +
+  geom_triangles(height_scale = 2, width_scale = .5, alpha = .7) +
+  geom_point(color = 'black', size = 1) +
+  ggrepel::geom_text_repel(color = 'black', size = 2, nudge_y = -10) +
+  scale_fill_viridis_c(end = .6) +
+  scale_color_viridis_c(end = .6) +
+  xlab("miles per gallon") +
+  ylab("engine displacement (cu. in.)") +
+  labs(fill = 'horsepower', color = 'horsepower') +
+  ggtitle("MPG, Engine Displacement, # of Cylinders, Weight, and Horsepower of Cars from the 1974 Motor Trends Magazine",
+  "Cylinders shown in height, weight in width, horsepower in color") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 10), plot.subtitle = element_text(size = 8), legend.title = element_text(size = 10))
+
+legend_hp <- cowplot::get_legend(plt_orig)
+
+plt <- plt_orig + theme(legend.position = 'none')
+
+height_legend <- 
+  draw_geom_triangles_height_legend(z_values = c(min(mtcars$cyl), median(mtcars$cyl), max(mtcars$cyl)),
+                                    labels = c(min(mtcars$cyl), median(mtcars$cyl), max(mtcars$cyl))
+                                    ) +
+                                    ggtitle("cylinders\n")
+width_legend <- 
+  draw_geom_triangles_width_legend(
+  width = quantile(mtcars$wt, c(.33, .66, 1)),
+  labels = round(quantile(mtcars$wt, c(.33, .66, 1)), 2),
+  width_scale = 
+  ) +
+  ggtitle("weight\n(1000 lbs)\n")
+
+blank_plot <- ggplot() + theme_void()
+  
+legend_component <-
+  (blank_plot /  cowplot::plot_grid(legend_hp) / blank_plot /  height_legend / blank_plot / width_legend / blank_plot) +
+  plot_layout(heights = c(1, 1, .5, 1, .5, 1, 1))
+
+(plt + legend_component) + 
+  plot_layout(nrow = 1, widths = c(1, .15))
 ```
