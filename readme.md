@@ -31,7 +31,7 @@ to represent sepal length and width](img/iris_example.png)
 ![ggtriangles example with mtcars dataset using the triangles height and width 
 to represent cylinders and horsepower](img/mtcars_example2.png)
 
-ggtriangles also supports angles!
+ggtriangles also supports angles as well as transparency!
 
 ![ggtriangles also supports angles](img/angles_in_ggtriangles.png)
 
