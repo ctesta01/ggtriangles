@@ -20,12 +20,23 @@
 #' work to adjust the angle of the triangles.
 #'
 #' @export
+#'
+#' @examples 
+#' 
+#' ggplot(mtcars, aes(x = cyl, y = hp, z = hp - mean(hp))) + 
+#'   geom_triangles()
+#' 
+#' ggplot(mtcars, aes(x = cyl, y = hp, z = hp - mean(hp))) + 
+#'   geom_triangles() + 
+#'   geom_smooth(formula = "y ~ 1", method = 'lm') +
+#'   ggtitle("A plot showing amount above and below average")
+#' 
 GeomTriangles <- ggproto("GeomTriangles", Geom,
                         required_aes = c("x", "y", "z"),
 
                         default_aes = aes(
                           colour = 'black', fill = "black", size = 0.5,
-                          linetype = 1, alpha = 1, width = 1, height_scale = 1
+                          linetype = 1, alpha = 1, width = .05, height = .05
                         ),
 
                         draw_key = draw_key_polygon,
@@ -34,12 +45,22 @@ GeomTriangles <- ggproto("GeomTriangles", Geom,
 
                           coords <- coord$transform(data, panel_params)
 
+                          # referent height and width scales: 
+                          # we assume that the "z axis" represented by triangle
+                          # height should be scaled similarly to how the y axis
+                          # is scaled; 
+                          # 
+                          # similarly, the width scale for the triangles should
+                          # be similar to the scaling done for the x axis.
+                          y_scaling_factor <- diff(range(coords$y)) /  diff(range(data$y))
+                          x_scaling_factor <- diff(range(coords$x)) / diff(range(data$x))
+
                           triangle_df <-
                             tibble(
                               group = 1:nrow(coords),
-                              point1 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] - width[[i]], y[[i]]))}),
-                              point2 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] + width[[i]], y[[i]]))}),
-                              point3 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]], y[[i]] + z[[i]]*height_scale[[i]]))})
+                              point1 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] - width[[i]]*x_scaling_factor, y[[i]]))}),
+                              point2 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]] + width[[i]]*x_scaling_factor, y[[i]]))}),
+                              point3 = lapply(1:nrow(coords), function(i) {with(coords, c(x[[i]], y[[i]] + z[[i]]*height[[i]]*y_scaling_factor))})
                             )
 
                           triangle_df <- triangle_df %>% tidyr::pivot_longer(
@@ -80,25 +101,33 @@ GeomTriangles <- ggproto("GeomTriangles", Geom,
 #' @export
 #'
 #' @examples
+#' 
+#' 
+#' data.frame(x = c(1, 3, 10)) %>% 
+#'   ggplot(aes(x = x, y = x, z = x, height = x, width = x)) + 
+#'   geom_triangles() + 
+#'   coord_cartesian(expand = TRUE)
+#' 
 #'
-#' # example 1
 #' iris %>%
-#'   ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length)) +
-#'   geom_triangles(width = 0.01, height_scale = 0.005) +
+#'   ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length, color = Petal.Length)) +
+#'   geom_triangles(width = .01, height = .01, fill = NA) +
+#'   scale_fill_viridis_c() + 
 #'   ggtitle("Sepal length, width, and petal length of iris flowers",
 #'   "Petal length is shown by the height of each triangle")
 #'
 #' # example 1.2 -- using variable width
 #'  iris %>%
-#' ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length, width = Petal.Width*0.01)) +
-#'   geom_triangles(height_scale = 0.005) +
+#' ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length, 
+#'    width = (Petal.Width - mean(Petal.Width))*.05)) +
+#'   geom_triangles() +
 #'  ggtitle("Sepal length, width, and petal length of iris flowers",
 #'          "Petal length is shown by the height of each triangle, and petal width by the width of each triangle")
 #'
 #' # example 2
 #' mtcars %>%
 #' ggplot(aes(x = mpg, y = disp, z = cyl, color = hp, fill = hp)) +
-#'   geom_triangles(width = 0.01, height_scale = .007) +
+#'   geom_triangles(height = .5, width = .25) +
 #'   scale_fill_viridis_c() +
 #'   scale_color_viridis_c()
 #'
