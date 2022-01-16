@@ -19,8 +19,13 @@ triangles with a horizontal base centered at position `(x,y)` with height `z`.
     data.frame(x = 1:5) %>%
       ggplot(aes(x = x, y = x, z = x)) +
       geom_triangles()
-     
+
 ![a scatterplot of triangles with varying heights](img/simplest_example.png)
+
+### how to get started
+
+Check out the examples available in the help pages by entering `?geom_triangles` into
+R after you've loaded the package.
 
 
 ### some more examples
