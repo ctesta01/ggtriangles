@@ -40,13 +40,6 @@ to represent sepal length and width](img/iris_example.png)
 ![ggtriangles example with mtcars dataset using the triangles height and width 
 to represent cylinders and horsepower](img/mtcars_example2.png)
 
-One particular application of ggtriangles I'm particularly interested in 
-is visualizing the residuals of statistical models as height. Here's an example 
-of a plot showing the residuals in triangles height based on a model of car
-prices given age and mileage.
-
-![example using ggtriangles visualizing residuals](img/residuals.png)
-
 ggtriangles also supports angles as well as transparency!
 
 ![ggtriangles also supports angles](img/angles_in_ggtriangles.png)
