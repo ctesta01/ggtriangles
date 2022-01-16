@@ -76,10 +76,12 @@ use-case for `ggtriangles`.
 ![](img/nyt_increased_counties.png)
 ![](img/nyt_decreased_counties.png)
 
-You can check out how I did it in the vignette available through
-`browseVignettes('ggtriangles')` document. Note that these figures are provided
-purely as examples and not meant for decision making purposes or scientific
-usage.
+You can check out how I did it in the vignette available through the vignette
+available in 
+`browseVignettes('ggtriangles')` or in
+[vignettes/recreating_nytimes_viz.Rmd][vignettes/recreating_nytimes_viz.Rmd].
+Note that these figures are provided purely as examples and not meant for
+decision making purposes or scientific usage.
 
 
 ### feedback
