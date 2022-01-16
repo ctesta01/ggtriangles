@@ -50,6 +50,12 @@ StatTriangles <- ggproto("StatTriangles", Stat,
     triangle_df$orig_x <- rep(data$x, each = 3)
     triangle_df$orig_y <- rep(data$y, each = 3)
 
+    # i'm not sure exactly why, but if the group isn't interacted with linetype
+    # then the edges of the triangles get messed up when rendered when linetype
+    # is used in an aesthetic
+    # triangle_df$group <-
+    #   paste0(triangle_df$orig_x, triangle_df$orig_y, triangle_df$group, rep(data$group, each = 3))
+
 		# fill in aesthetics to the dataframe
     triangle_df$colour <- rep(data$colour, each = 3)
     triangle_df$size <- rep(data$size, each = 3)
@@ -58,16 +64,21 @@ StatTriangles <- ggproto("StatTriangles", Stat,
     triangle_df$alpha <- rep(data$alpha, each = 3)
     triangle_df$angle <- rep(data$angle, each = 3)
 
+    # determine scaling factor in going from y to x
+    # scale_factor <- diff(range(data$x)) / diff(range(data$y))
+    scale_factor <- diff(scales$x$get_limits()) / diff(scales$y$get_limits())
+    if (! is.finite(scale_factor) | is.na(scale_factor)) scale_factor <- 1
+
     # rotate the data according to the angle by first subtracting out the
     # (orig_x, orig_y) component, applying coordinate rotations, and then
     # adding the (orig_x, orig_y) component back in.
 		new_coords <- triangle_df %>% mutate(
       x_diff = x - orig_x,
-      y_diff = y - orig_y,
+      y_diff = (y - orig_y) * scale_factor,
       x_new = x_diff * cos(angle) - y_diff * sin(angle),
       y_new = x_diff * sin(angle) + y_diff * cos(angle),
-      x_new = orig_x + x_new,
-      y_new = orig_y + y_new
+      x_new = orig_x + x_new*scale_factor,
+      y_new = (orig_y + y_new)
 		)
 
 		# overwrite the x,y coordinates with the newly computed coordinates
@@ -131,8 +142,7 @@ stat_triangles <- function(mapping = NULL, data = NULL, geom = "polygon",
 GeomTriangles <- ggproto("GeomTriangles", GeomPolygon,
 	default_aes = aes(
 			color = 'black', fill = "black", size = 0.5, linetype = 1, alpha = 1, angle = 0, width = 1
-		),
-  draw_key = draw_key_polygon
+		)
 )
 
 #' Plot triangles with base centered at (x,y) and height z
@@ -157,9 +167,26 @@ GeomTriangles <- ggproto("GeomTriangles", GeomPolygon,
 #'   ggplot(aes(x = x, y = x, z = x)) +
 #'   geom_triangles()
 #'
+#' # support for negative direction height
 #' data.frame(x = -1*1:5) %>%
 #'   ggplot(aes(x = x, y = x, z = x)) +
 #'   geom_triangles()
+#'
+#' # support for linetypes - currently glitchy
+#' data.frame(x = 1:5, linetype = c(rep('solid', 2), 'dashed', rep('dotted', 2))) %>%
+#'   ggplot(aes(x = x, y = x, z = x, linetype=linetype)) +
+#'   geom_triangles(fill = NA) +
+#'   scale_size_continuous(range = c(.3,1)) +
+#'   scale_linetype_manual(values = c('solid' = 'solid', 'dashed' = 'dashed', 'dotted' = 'dotted')) +
+#'   theme_bw()
+#'
+#' #
+#' data.frame(x = 1:5, linetype = c(rep('solid', 2), 'dashed', rep('dotted', 2))) %>%
+#'   ggplot(aes(x = x, y = x, z = x, linetype=linetype)) +
+#'   geom_triangles(fill = NA) +
+#'   scale_size_continuous(range = c(.3,1)) +
+#'   scale_linetype_manual(values = c('solid' = 'solid', 'dashed' = 'dashed', 'dotted' = 'dotted')) +
+#'   theme_bw()
 #'
 #' # works with facets
 #' data.frame(x = 1:5) %>%
@@ -181,6 +208,29 @@ GeomTriangles <- ggproto("GeomTriangles", GeomPolygon,
 #' 	 geom_triangles(color = NA, height_scale = 1, width_scale = 1) +
 #'   geom_point(color = 'black', alpha = 1) + scale_fill_viridis_c()
 #'
+#' # another angle support demo -- kind of looks like little "death-stars" from star wars
+#' data.frame(x = 0:39) %>%
+#'   ggplot(aes(x = x %% 10, y = x - (x%%10), z = 1, angle = x / 30 * pi)) +
+#' 	 geom_triangles(height_scale = 10, width_scale = 1., alpha = 0.5, color = NA) +
+#'   geom_point(color = 'black', alpha = 1) + scale_fill_viridis_c()
+#'
+#' # Archimedean spiral example --
+#' a <- 2
+#' b <- .5
+#' theta <- seq(0, 5*pi, length=100)
+#' rr <- a+b*theta
+#' # change to cartesian
+#' xx <- rr*sin(theta)
+#' yy <- rr*cos(theta)
+#'
+#' data.frame(x = xx, y = yy) %>%
+#'   ggplot(aes(x = xx, y = yy, z = 10, angle = atan2(yy, xx))) +
+#'   geom_triangles(alpha = 0.5, width_scale = 1.5) +
+#'   theme_void()
+#'
+#'
+#' # iris dataset example
+#' # ====================
 #'
 #' # here's an example with the iris dataset making use of height, width, and
 #' # color to communicate variables from the dataset
@@ -205,6 +255,9 @@ GeomTriangles <- ggproto("GeomTriangles", GeomPolygon,
 #'   ) +
 #'   theme_bw()
 #'
+#' # mtcars dataset example
+#' # ======================
+#'
 #' # an example with the mtcars dataset showing mpg, displacement, cylinders,
 #' # weight, and horsepower for each vehicle -- makes use of ggrepel::geom_text_repel.
 #' #
@@ -215,7 +268,7 @@ GeomTriangles <- ggproto("GeomTriangles", GeomPolygon,
 #' mtcars %>%
 #'   tibble::rownames_to_column('name') %>%
 #'   ggplot(aes(x = mpg, y = disp, z = cyl, width = wt, color = hp, fill = hp, label = name)) +
-#'   geom_triangles(height_scale = 2, width_scale = .5, alpha = .7) +
+#'   geom_triangles(height_scale = 20, width_scale = 7, alpha = .7) +
 #'   geom_point(color = 'black', size = 1) +
 #'   ggrepel::geom_text_repel(color = 'black', size = 2, nudge_y = -10) +
 #'   scale_fill_viridis_c(end = .6) +

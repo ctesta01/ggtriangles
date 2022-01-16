@@ -5,7 +5,7 @@
 \alias{GeomTriangles}
 \title{GeomTriangles ggproto}
 \format{
-An object of class \code{GeomTriangles} (inherits from \code{Geom}, \code{ggproto}, \code{gg}) of length 5.
+An object of class \code{GeomTriangles} (inherits from \code{GeomPolygon}, \code{Geom}, \code{ggproto}, \code{gg}) of length 2.
 }
 \usage{
 GeomTriangles
@@ -29,5 +29,16 @@ aesthetic argument.
 This system is currently designed to plot triangles which have a flat/horizontal
 edge with midpoint (x,y), but the system could potentially be extended in future
 work to adjust the angle of the triangles.
+}
+\examples{
+
+ggplot(mtcars, aes(x = cyl, y = hp, z = hp - mean(hp), width = 1)) +
+  geom_triangles()
+
+ggplot(mtcars, aes(x = cyl, y = hp, z = hp - mean(hp), width = 1)) +
+  geom_triangles() +
+  geom_smooth(formula = "y ~ 1", method = 'lm') +
+  ggtitle("A plot showing amount above and below average and by how much")
+
 }
 \keyword{datasets}

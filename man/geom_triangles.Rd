@@ -2,12 +2,11 @@
 % Please edit documentation in R/geom_triangles.R
 \name{geom_triangles}
 \alias{geom_triangles}
-\title{Triangle plotter -- plot triangles with base x,y and height z}
+\title{Plot triangles with base centered at (x,y) and height z}
 \usage{
 geom_triangles(
   mapping = NULL,
   data = NULL,
-  stat = "identity",
   position = "identity",
   na.rm = FALSE,
   show.legend = NA,
@@ -22,44 +21,134 @@ geom_triangles(
 
 \item{width}{the width of the base of the triangle}
 
+\item{width_scale}{the width of the base of the triangle}
+
 \item{height_scale}{the scaling factor (default: 1) for the triangle's height relative to the y values}
 }
 \description{
-Draw triangles with base at (x,y), specifieid width, and height
+Draw triangles with base at (x,y), specified width, and height
 given by aesthetic argument z.
 }
 \examples{
 
-# example 1
-mtcars \%>\%
-ggplot(aes(x = mpg, y = disp, z = cyl, color = hp, fill = hp)) +
-  geom_triangles(height_scale = 3) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c()
+# nearly simplest possible example
+data.frame(x = 1:5) \%>\%
+  ggplot(aes(x = x, y = x, z = x)) +
+  geom_triangles()
 
-# example 2
+# support for negative direction height
+data.frame(x = -1*1:5) \%>\%
+  ggplot(aes(x = x, y = x, z = x)) +
+  geom_triangles()
+
+# support for linetypes
+data.frame(x = 1:5, linetype = c(rep('solid', 2), 'dashed', rep('dotted', 2))) \%>\%
+  ggplot(aes(x = x, y = x, z = x, linetype=linetype)) +
+  geom_triangles(fill = NA) +
+  scale_size_continuous(range = c(.3,1)) +
+  scale_linetype_manual(values = c('solid' = 'solid', 'dashed' = 'dashed', 'dotted' = 'dotted')) +
+  theme_bw()
+
+#
+data.frame(x = 1:5, linetype = c(rep('solid', 2), 'dashed', rep('dotted', 2))) \%>\%
+  ggplot(aes(x = x, y = x, z = x, linetype=linetype)) +
+  geom_triangles(fill = NA) +
+  scale_size_continuous(range = c(.3,1)) +
+  scale_linetype_manual(values = c('solid' = 'solid', 'dashed' = 'dashed', 'dotted' = 'dotted')) +
+  theme_bw()
+
+# works with facets
+data.frame(x = 1:5) \%>\%
+  ggplot(aes(x = x, y = x, z = x)) +
+  geom_triangles() +
+  facet_wrap(~x)
+
+# alpha, width, fill, and color aesthetics are supported
+data.frame(x = 1:5) \%>\%
+  ggplot(aes(x = x, y = x, z = x, fill = x, color = x, width = x, alpha = x)) +
+  geom_triangles(color = NA, height_scale = 1, width_scale = 1) +
+  geom_point(color = 'black', alpha = 1) +
+  scale_y_continuous(breaks = 1:10) +
+  scale_x_continuous(breaks = seq(.5, to = 7.5, by = .5))
+
+# angle is supported
+data.frame(x = c(0:30)) \%>\%
+  ggplot(aes(x = x, y = x, z = x/15+1, fill = x, alpha = x, angle = x/10*pi)) +
+	 geom_triangles(color = NA, height_scale = 1, width_scale = 1) +
+  geom_point(color = 'black', alpha = 1) + scale_fill_viridis_c()
+
+# another angle support demo -- kind of looks like little "death-stars" from star wars
+data.frame(x = 0:39) \%>\%
+  ggplot(aes(x = x \%\% 10, y = x - (x\%\%10), z = 1, angle = x / 30 * pi)) +
+	 geom_triangles(height_scale = 10, width_scale = 1., alpha = 0.5, color = NA) +
+  geom_point(color = 'black', alpha = 1) + scale_fill_viridis_c()
+
+# Archimedean spiral example --
+a <- 2
+b <- .5
+theta <- seq(0, 5*pi, length=100)
+rr <- a+b*theta
+# change to cartesian
+xx <- rr*sin(theta)
+yy <- rr*cos(theta)
+
+data.frame(x = xx, y = yy) \%>\%
+  ggplot(aes(x = xx, y = yy, z = 10, angle = atan2(yy, xx))) +
+  geom_triangles(alpha = 0.5, width_scale = 1.5) +
+  theme_void()
+
+
+# iris dataset example
+# ====================
+
+# here's an example with the iris dataset making use of height, width, and
+# color to communicate variables from the dataset
+
 iris \%>\%
-  ggplot(aes(x = Sepal.Length, y = Sepal.Width, z = Petal.Length)) +
-  geom_triangles(width = 0.1, height_scale = 0.05)
+  ggplot(
+    aes(
+      x = Sepal.Length,
+      y = Sepal.Width,
+      z = Petal.Length,
+      fill = Petal.Length,
+      width = Petal.Width
+    )
+  ) +
+  geom_triangles(color = NA,
+                 width_scale = .1,
+                 alpha = .7) +
+  scale_fill_viridis_c(end = .8) +
+  ggtitle(
+    "Sepal length and width and petal length and width of iris flowers",
+    "Petal length and width are shown by the height and width of each triangle"
+  ) +
+  theme_bw()
 
-# example 3
-ggplot(data.frame(x=1:5, y = 1:5, z = (c(5,-.5,3,1.5,-7)/15)), aes(x=x,y=y,z=z)) +
-  geom_triangles(width = 0.1)
+# mtcars dataset example
+# ======================
 
-# example with legend using patchwork
-library(patchwork)
+# an example with the mtcars dataset showing mpg, displacement, cylinders,
+# weight, and horsepower for each vehicle -- makes use of ggrepel::geom_text_repel.
+#
+# best viewed as around a 8.5in by 7in landscape figure
 
-z_values <- c(5,-.5,3,1.5,-7)/15
+library(ggrepel)
 
-plt <- ggplot(data.frame(x=1:5, y = 1:5, z = z_values), aes(x=x,y=y,z=z)) +
-    geom_triangles(width = 0.1)
-
-legend <- draw_geom_triangles_size_legend(z_values = z_values, height_scale = 1.5, width = 0.1)
-
-blank_plot <- ggplot() + theme_void()
-
-(plt + (blank_plot / legend / blank_plot)) +
-  plot_layout(ncol = 2, nrow = 1, widths = c(1, .25))
+mtcars \%>\%
+  tibble::rownames_to_column('name') \%>\%
+  ggplot(aes(x = mpg, y = disp, z = cyl, width = wt, color = hp, fill = hp, label = name)) +
+  geom_triangles(height_scale = 2, width_scale = .5, alpha = .7) +
+  geom_point(color = 'black', size = 1) +
+  ggrepel::geom_text_repel(color = 'black', size = 2, nudge_y = -10) +
+  scale_fill_viridis_c(end = .6) +
+  scale_color_viridis_c(end = .6) +
+  xlab("miles per gallon") +
+  ylab("engine displacement (cu. in.)") +
+  labs(fill = 'horsepower', color = 'horsepower') +
+  ggtitle("MPG, Engine Displacement, # of Cylinders, Weight, and Horsepower of Cars from the 1974 Motor Trends Magazine",
+  "Cylinders shown in height, weight in width, horsepower in color") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 10), plot.subtitle = element_text(size = 8))
 
 }
 \seealso{

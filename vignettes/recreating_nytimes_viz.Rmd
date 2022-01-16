@@ -1,5 +1,5 @@
 ---
-title: "recreating_nytimes_viz"
+title: "Recreating NYTimes Visual Format with ggtriangles"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{recreating_nytimes_viz}
@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 18, 
+  fig.height = 14
 )
 ```
 
@@ -47,7 +49,7 @@ ggplot() +
           sf::st_coordinates(.) %>%
           as.data.frame()),
     mapping = aes(x = X, y = Y, z = values),
-    width = 1, height_scale = .15,
+    width_scale = 10000, height_scale = 15000,
     fill = '#c0392b', color = '#c0392b', alpha = 0.8) +
   scale_fill_manual(values = c(`TRUE` = 'lightpink', `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +

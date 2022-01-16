@@ -10,19 +10,26 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
 )
 ```
+
+# Examples of how to add a legend (or multiple legends)
+
+### `datasets::sleep` Example
 
 ```{r setup}
 library(ggtriangles)
 library(patchwork)
 
+# create the sleep ggtriangles plot
 plt <- datasets::sleep %>% 
   # no explicitly built support for categorical levels yet, so make sure you
   # format data as numeric for x, y, z, and width
   ggplot(aes(x = as.numeric(ID), y = as.numeric(group), z = extra)) +
-  geom_triangles(width_scale = .2, height_scale = .05) + 
+  geom_triangles(width_scale = .04, height_scale = .01) + 
   scale_y_continuous(breaks = c(1,2)) + 
   expand_limits(y = c(0.5, 2.5)) + 
   xlab("Individual") + 
@@ -36,6 +43,13 @@ print(plt)
 Now let's add a legend:
 
 ```{r, fig.width = 9, fig.height = 5, out.width = '100%'}
+
+# create the legend using the draw_geom_triangles_height_legend function
+# provided in ggtriangles
+#
+# note that this function (unlike cowplot::get_legend) returns a ggplot 
+# object, so it's ready to go into something like a patchwork layout
+ 
 legend <-
   draw_geom_triangles_height_legend(
   z_values = c(-max(sleep$extra), 0, max(sleep$extra)),
@@ -44,10 +58,26 @@ legend <-
   labels = c('decrease in\nsleep', 'no change', 'increase in\nsleep')
   )
 
+# we use a blank plot to help with layout - so that the the legend
+# doesn't get stretched out a lot vertically and only takes up the 
+# middle of a right hand side column
+
 blank_plot <- ggplot() + theme_void()
+
+# build a column layout like:
+#    
+#      blank 
+#     [legend]
+#      blank
+# 
 
 legend_component <- ((blank_plot / legend / blank_plot) +
   plot_layout(ncol = 1, heights = c(.2, .6, .2)))
+
+
+# use patchwork to compose our original plot and the legend 
+# component together, side-by-side, width the legend component 
+# taking up 1/6th of the width on the right hand side
 
 (plt + legend_component) +
   plot_layout(widths = c(1, .2))
@@ -55,9 +85,29 @@ legend_component <- ((blank_plot / legend / blank_plot) +
 ```
 
 
-
+#### `mtcars` Example
 
 ```{r mtcars example}
+library(ggrepel)
+library(cowplot)
+
+# create our original plot using mtcars 
+#
+# this shows each car as a triangle where 
+#   (x, y, z (height), width, fill) = 
+#     (mpg, engine displacement, cylinders, weight, miles per gallon).
+# 
+# we use a geom_point layer to help make the visualization 
+# more intuitively precise as to where on the x and y axes 
+# each car is located.
+# 
+# the geom_text_repel layer helps the reader of the plot learn 
+# what the car names are associated with each car based on the
+# measures shown
+# 
+# font size is slightly reduced in the title and subtitle 
+# to fit on a roughly 7in x 8.5in (wide) layout.
+# 
 
 plt_orig <- mtcars %>%
   tibble::rownames_to_column('name') %>%
@@ -75,15 +125,21 @@ plt_orig <- mtcars %>%
   theme_bw() +
   theme(plot.title = element_text(size = 10), plot.subtitle = element_text(size = 8), legend.title = element_text(size = 10))
 
+# extract the original legend - this is for the color and fill (hp)
 legend_hp <- cowplot::get_legend(plt_orig)
 
+# remove the legend from the plot
 plt <- plt_orig + theme(legend.position = 'none')
 
+# create a height legend using draw_geom_triangles_height_legend
 height_legend <- 
   draw_geom_triangles_height_legend(z_values = c(min(mtcars$cyl), median(mtcars$cyl), max(mtcars$cyl)),
                                     labels = c(min(mtcars$cyl), median(mtcars$cyl), max(mtcars$cyl))
                                     ) +
                                     ggtitle("cylinders\n")
+
+
+# create a width legend using draw_geom_triangles_width_legend
 width_legend <- 
   draw_geom_triangles_width_legend(
   width = quantile(mtcars$wt, c(.33, .66, 1)),
@@ -94,10 +150,16 @@ width_legend <-
 
 blank_plot <- ggplot() + theme_void()
   
+# create a legend column layout
+# 
+# whitespace is used above, below, and in-between the legend components to
+# make sure the legend column pieces don't appear too densely stacked.
+# 
 legend_component <-
   (blank_plot /  cowplot::plot_grid(legend_hp) / blank_plot /  height_legend / blank_plot / width_legend / blank_plot) +
   plot_layout(heights = c(1, 1, .5, 1, .5, 1, 1))
 
+# create the layout with the plot and the legend component
 (plt + legend_component) + 
   plot_layout(nrow = 1, widths = c(1, .15))
 ```
