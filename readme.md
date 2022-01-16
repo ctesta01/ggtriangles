@@ -78,9 +78,8 @@ use-case for `ggtriangles`.
 
 You can check out how I did it in the vignette available through the vignette
 available in 
-`browseVignettes('ggtriangles')`, the source code,
-[vignettes/recreating_nytimes_viz.Rmd][vignettes/recreating_nytimes_viz.Rmd],
-or the R code [doc/recreating_nytimes_viz.R][doc/recreating_nytimes_viz.R].
+`browseVignettes('ggtriangles')` or the source code,
+[vignettes/recreating_nytimes_viz.Rmd][vignettes/recreating_nytimes_viz.Rmd].
 Note that these figures are provided purely as examples and not meant for
 decision making purposes or scientific usage.
 
