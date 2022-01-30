@@ -112,7 +112,7 @@ library(cowplot)
 plt_orig <- mtcars %>%
   tibble::rownames_to_column('name') %>%
   ggplot(aes(x = mpg, y = disp, z = cyl, width = wt, color = hp, fill = hp, label = name)) +
-  geom_triangles(height_scale = 2, width_scale = .5, alpha = .7) +
+  geom_triangles(width_scale = 10, height_scale = 15, alpha = .7) +
   geom_point(color = 'black', size = 1) +
   ggrepel::geom_text_repel(color = 'black', size = 2, nudge_y = -10) +
   scale_fill_viridis_c(end = .6) +
@@ -144,7 +144,7 @@ width_legend <-
   draw_geom_triangles_width_legend(
   width = quantile(mtcars$wt, c(.33, .66, 1)),
   labels = round(quantile(mtcars$wt, c(.33, .66, 1)), 2),
-  width_scale = 
+  width_scale = .2
   ) +
   ggtitle("weight\n(1000 lbs)\n")
 
