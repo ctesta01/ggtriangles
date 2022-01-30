@@ -11,9 +11,6 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 Depends:
-  dplyr,
-  tibble,
-  tidyr,
   ggplot2
 RoxygenNote: 7.1.2
 Suggests: 
