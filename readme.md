@@ -1,6 +1,6 @@
 # ggtriangles
 
-`ggtriangles` provides the `geom_triangles()` function which plots isoceles
+`ggtriangles` provides the `geom_triangles()` function which plots isosceles
 triangles with a horizontal base centered at position `(x,y)` with height `z`.
 
 **note:** ggtriangles is still under development.
