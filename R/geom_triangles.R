@@ -36,6 +36,7 @@ draw_key_triangle <- function(data, params, size) {
     c(0, 1, 0),
     data$triangle_height
   ))
+  y_off <- y_off + .5
 
   ang <- rep_data$angle * (pi / 180)
   x_new <- x_off * cos(ang) - y_off * sin(ang)
@@ -68,7 +69,6 @@ GeomTriangles <- ggproto(
     alpha = 1, angle = 0, triangle_width = 0.5, triangle_height = 0.5
   ),
   setup_params = function(data, params) {
-    print(params)
     return(params)
   },
   draw_panel = function(
@@ -140,21 +140,37 @@ GeomTriangles <- ggproto(
 #'   theme_bw() +
 #'   theme(legend.position = 'bottom')
 #'
-#' # example not currently working:
-#' ggplot(datasets::sleep, aes(
-#'   x = as.numeric(ID),
-#'   y = as.numeric(group),
-#'   triangle_height = extra
-#'   # angle = ifelse(extra > 0, 0, 180) # this is the crude way of setting appropriate
-#'   # angle for negative numbers that I'd like to avoid using, but it does work
-#' )) +
-#'   geom_triangles() +
-#'   scale_y_continuous(breaks = c(1,2)) +
+#'
+#' # sleep dataset example
+#' # =====================
+#'
+#' sleep_effect_max <- max(abs(datasets::sleep$extra))
+#' triangle_height_range <- c(-sleep_effect_max, sleep_effect_max)
+#'
+#' ggplot(datasets::sleep,
+#'        aes(
+#'          x = as.numeric(ID),
+#'          y = as.numeric(group),
+#'          triangle_height = extra
+#'        )) +
+#'   geom_triangles(alpha = 0.85) +
+#'   scale_y_continuous(breaks = c(1, 2)) +
 #'   expand_limits(y = c(0.5, 2.5)) +
 #'   xlab("Individual") +
 #'   ylab("Drug Given") +
+#'   scale_triangle_height_continuous(
+#'     breaks = c(-sleep_effect_max, 0, sleep_effect_max),
+#'     range = c(-.75, .75),
+#'     limits = triangle_height_range
+#'   ) +
 #'   ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") +
-#'   labs(caption = "Data from datasets::sleep")
+#'   labs(caption = "Data from datasets::sleep",
+#'        triangle_height = "Observed change\nin sleep hours") +
+#'   theme(
+#'     legend.position = 'bottom',
+#'     legend.key.height = unit(1.75, 'cm'),
+#'     legend.key.width = unit(.75, 'cm')
+#'   )
 #'
 geom_triangles <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE, show.legend = NA,

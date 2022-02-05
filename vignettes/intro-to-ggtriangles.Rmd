@@ -1,0 +1,207 @@
+---
+title: "Intro to ggtriangles"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro-to-ggtriangles}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+```
+
+### `datasets::sleep` Example
+
+This plot shows the data from datasets::sleep.
+
+In particular, it shows off a few features of ggtriangles, such as:
+  - using negative heights with ggtriangles,
+  - using the `legend_y_offset` argument to geom_triangles 
+  - manually specifying the legend key height and width so the triangles fit 
+  in the legend
+
+
+```{r setup, fig.width = 7.5, height = 4, dpi = 300, out.width = '100%'}
+library(ggtriangles)
+
+sleep_effect_max <- max(datasets::sleep$extra)
+sleep_effect_min <- min(datasets::sleep$extra)
+triangle_height_range <- c(sleep_effect_min, sleep_effect_max)
+
+plt <- ggplot(datasets::sleep,
+       aes(
+         x = as.numeric(ID),
+         y = as.numeric(group),
+         triangle_height = extra
+       )) +
+  geom_triangles(alpha = 0.85, legend_y_offset = 0.5) +
+  scale_y_continuous(breaks = c(1, 2)) +
+  expand_limits(y = c(0.5, 2.5)) +
+  xlab("Individual") +
+  ylab("Drug Given") +
+  scale_triangle_height(
+    breaks = c(sleep_effect_min, 0, sleep_effect_max),
+    range = c(.75, .75) * (triangle_height_range)/max(triangle_height_range),
+    limits = triangle_height_range
+  ) +
+  ggtitle("Data show the effects of two soporific drugs administered to a group of 10 people") +
+  labs(caption = "Data from datasets::sleep",
+       triangle_height = "Observed change\nin sleep hours") +
+  theme(
+    legend.position = 'bottom',
+    legend.key.height = unit(1.75, 'cm'),
+    legend.key.width = unit(.75, 'cm')
+  )
+
+print(plt)
+```
+
+
+### `iris` Dataset Example
+
+```{r iris dataset example, fig.width = 7.5, height = 6, dpi = 300, out.width = '100%'}
+plt <- ggplot(iris,
+  aes(
+    x = Sepal.Length,
+    y = Sepal.Width,
+    triangle_height = Petal.Length,
+    fill = Petal.Length,
+    color = Petal.Length,
+    triangle_width = Petal.Width
+  )
+) +
+geom_triangles(alpha = .7) +
+scale_fill_viridis_c(option = 'A', end = .8) +
+scale_color_viridis_c(option = 'A', end = .8) +
+scale_triangle_width(range = c(0.1, 1), n.breaks = 3, breaks = c(1.5, 2, 2.5)) +
+scale_triangle_height(range = c(0.1, 1), n.breaks = 3) +
+  guides(color = guide_colourbar(order = 1, reverse = TRUE),
+         fill = guide_colourbar(order = 1, reverse = TRUE),
+        triangle_height = guide_legend(order = 2),
+        triangle_width = guide_legend(order = 3)) + 
+ggtitle(
+  "Sepal length and width and petal length and width of iris flowers",
+  "Petal length and width are shown by the height and width of each triangle"
+) +
+theme_bw() +
+theme(legend.position = 'right')
+
+print(plt)
+
+
+# if you want to combine the triangle aesthetics (like height or width) with the 
+# color or fill aesthetics in the legend, you can do that using the override.aes
+# argument to the guide_*() functions that are passed to guides().
+
+plt <- ggplot(iris,
+  aes(
+    x = Sepal.Length,
+    y = Sepal.Width,
+    triangle_height = Petal.Length,
+    fill = Petal.Length,
+    color = Petal.Length,
+    triangle_width = Petal.Width
+  )
+) +
+geom_triangles(alpha = .7) +
+scale_fill_viridis_c(option = 'A', end = .8) +
+scale_color_viridis_c(option = 'A', end = .8) +
+scale_triangle_width(range = c(0.1, 1), n.breaks = 3, breaks = c(.25, 1.25, 2.5)) +
+scale_triangle_height(range = c(0.1, 1), n.breaks = 6) +
+  guides(color = 'none',
+         fill = 'none',
+         triangle_height = guide_legend(
+           order = 1,
+           nrow = 1,
+           override.aes = list(
+           color = viridis::viridis(6, end = .8, option = 'A'),
+           fill = viridis::viridis(6, end = .8, option = 'A')
+           ),
+           keywidth = unit(.5, 'cm')
+           ),
+           triangle_width = guide_legend(order = 2, keywidth = unit(.9, 'cm'))) + 
+ggtitle(
+  "Sepal length and width and petal length and width of iris flowers",
+  "Petal length and width are shown by the height and width of each triangle"
+) +
+theme_bw() +
+theme(legend.position = 'bottom')
+
+print(plt)
+```
+
+
+### `mtcars` Dataset Example
+
+```{r mtcars example, fig.width = 8.5, height = 8, dpi = 300, out.width = '100%'}
+library(dplyr)
+library(tibble)
+library(ggrepel)
+
+# create our original plot using mtcars 
+#
+# this shows each car as a triangle where 
+#   (x, y, z (height), width, fill) = 
+#     (mpg, engine displacement, cylinders, weight, miles per gallon).
+# 
+# we use a geom_point layer to help make the visualization 
+# more intuitively precise as to where on the x and y axes 
+# each car is located.
+# 
+# the geom_text_repel layer helps the reader of the plot learn 
+# what the car names are associated with each car based on the
+# measures shown
+# 
+# font size is slightly reduced in the title and subtitle 
+# to fit on a roughly 7in x 8.5in (wide) layout.
+# 
+
+plt <- mtcars %>%
+  tibble::rownames_to_column('name') %>%
+  ggplot(aes(x = mpg, y = disp, triangle_height = cyl, triangle_width = wt, color = hp, fill = hp, label = name)) +
+  geom_triangles(alpha = .7) +
+  geom_point(color = 'black', size = 1) +
+  ggrepel::geom_text_repel(color = 'black', size = 2, nudge_y = -10) +
+  scale_fill_viridis_c(end = .6) +
+  scale_color_viridis_c(end = .6) +
+  scale_triangle_height(range = c(0.1, 0.75), breaks = c(2, 4, 8), n.breaks = 3, limits = c(0,8)) +
+  scale_triangle_width(range = c(0.3, 1)) + 
+  expand_limits(y = range(mtcars$disp) + c(0, 25)) + # expand limits so triangles don't go off page
+  xlab("miles per gallon") +
+  ylab("engine displacement (cu. in.)") +
+  labs(fill = 'horsepower', color = 'horsepower', triangle_height = 'cylinders', triangle_width = 'weight\n(1000 lbs)') +
+  ggtitle("MPG, Engine Displacement, # of Cylinders, Weight, and Horsepower of Cars from the 1974 Motor Trends Magazine",
+  "Cylinders shown in height, weight in width, horsepower in color") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 10), plot.subtitle = element_text(size = 8), legend.title = element_text(size = 10))
+
+print(plt)
+```
+
+
+### an archimedian spiral example
+
+```{r, fig.height = 5, fig.width = 5, dpi = 300}
+a <- 2
+b <- .5
+theta <- seq(0, 10*pi, length=200)
+rr <- a+b*theta
+# change to cartesian
+xx <- rr*sin(theta)
+yy <- rr*cos(theta)
+
+data.frame(x = xx, y = yy) %>%
+  mutate(row_number = row_number()) %>% 
+  ggplot(aes(x = xx, y = yy, triangle_height = row_number, angle = atan2(yy, xx) * 180 / (pi), fill = row_number, color = row_number)) +
+  geom_triangles(alpha = 0.5) +
+  scale_fill_viridis_c(direction = -1) + 
+  scale_color_viridis_c(direction = -1) + 
+  theme_void() + 
+  theme(plot.background = element_rect(fill = 'black'), legend.position = 'none')
+```
