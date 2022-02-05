@@ -227,8 +227,8 @@ ggplot() +
 
 
 # library(here)
-ggsave(here("img/nyt_increased_counties.png"), width = 10, height = 8)
-ggsave(here("img/nyt_increased_counties.jpeg"), width = 10, height = 8)
+# ggsave(here("img/nyt_increased_counties.png"), width = 10, height = 8)
+# ggsave(here("img/nyt_increased_counties.jpeg"), width = 10, height = 8)
 
 
 
@@ -269,6 +269,6 @@ ggplot() +
   theme(legend.position = 'bottom',
         plot.title = element_text(hjust = 0.5, face = 'bold'))
 
-ggsave(here("img/nyt_decreased_counties.png"), width = 10, height = 8)
-ggsave(here("img/nyt_decreased_counties.jpeg"), width = 10, height = 8)
+# ggsave(here("img/nyt_decreased_counties.png"), width = 10, height = 8)
+# ggsave(here("img/nyt_decreased_counties.jpeg"), width = 10, height = 8)
 ```
