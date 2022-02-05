@@ -98,13 +98,14 @@ nyt2021 <- readr::read_csv("https://github.com/nytimes/covid-19-data/raw/master/
 
 nyt2020avg <- nyt2020 %>% 
   bind_rows(nyt2021 %>% 
-  filter(date <= lubridate::ymd("2021-04-01"))) %>% 
-  filter(date > lubridate::ymd("2020-04-01")) %>% 
+  filter(date <= lubridate::ymd("2021-04-19"))) %>% 
+  filter(date > lubridate::ymd("2020-04-19")) %>% 
   group_by(geoid, county, state) %>% 
   summarize(avg_death_rate = mean(deaths_avg_per_100k, na.rm=T))
 
 nyt2021avg <- nyt2021 %>% group_by(geoid, county, state) %>% 
-  filter(date > lubridate::ymd("2021-04-01")) %>% 
+  filter(date > lubridate::ymd("2021-04-19")) %>% 
+  filter(date <= lubridate::ymd("2021-12-28")) %>% 
   summarize(avg_death_rate = mean(deaths_avg_per_100k, na.rm=T))
 
 
@@ -188,7 +189,7 @@ state_centers %<>% bind_cols(state_centers_xy %>% as.data.frame())
 state_centers %<>% left_join(state_abbreviations)
 
 
-lower_threshold <- 0.0
+lower_threshold <- 0.01
 
 ggplot() +
   geom_sf(data = counties,
@@ -214,13 +215,15 @@ ggplot() +
     mapping = aes(x = X, y = Y, label = state_abbv_med),
     hjust = 0.5, vjust = 0, check_overlap = F, size = 2.5
   ) + 
-  scale_triangle_height() + 
   scale_fill_manual(values = c(`TRUE` = 'lightpink', `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = "#c0392b", `FALSE` = 'white')) +
+  scale_triangle_height(range = c(0.0, .5), n.breaks = 2, breaks = c(.1, 2.25), labels = c('smaller\nincrease', 'larger\nincrease')) + 
   ggtitle("Counties where death rates were higher after vaccines were widely available") + 
   theme_void() + 
-  theme(legend.position = 'none', plot.title = element_text(hjust = 0.5, face = 'bold'))
+  labs(triangle_height = '') + 
+  guides(triangle_height = guide_legend(order=1, label.position = 'bottom'), color = 'none', fill = 'none', size = 'none') + 
+  theme(legend.position = 'bottom', plot.title = element_text(hjust = 0.5, face = 'bold'))
 
 
 # library(here)
@@ -229,7 +232,7 @@ ggsave(here("img/nyt_increased_counties.jpeg"), width = 10, height = 8)
 
 
 
-upper_threshold = 0.
+upper_threshold = -0.01
 ggplot() +
   geom_sf(data = counties,
           mapping = aes(
@@ -246,21 +249,25 @@ ggplot() +
           sf::st_centroid() %>%
           sf::st_coordinates(.) %>%
           as.data.frame()),
-    mapping = aes(x = X, y = Y, triangle_height = -log(-change)),
-    triangle_width = .075, 
-    fill = darkgreen, color = darkgreen, alpha = 0.8) +
+    mapping = aes(x = X, y = Y, triangle_height = change),
+    triangle_width = .05, 
+    fill = darkgreen, color = darkgreen,
+    legend_y_offset = 0.5) +
   geom_text(
     data = state_centers, 
     mapping = aes(x = X, y = Y, label = state_abbv_med),
     hjust = 0.5, vjust = 0, size = 2.5
   ) + 
-  scale_triangle_height(range = c(-0.1, -.5)) + 
+  scale_triangle_height(range = c(-0.0, -.25), n.breaks = 2, breaks = c(-.1, -2.25), labels = c('larger\ndecrease', 'smaller\ndecrease')) + 
   scale_fill_manual(values = c(`TRUE` = lightgreen, `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = darkgreen, `FALSE` = 'white')) +
   ggtitle("Counties where death rates were lower after vaccines were widely available") + 
   theme_void() + 
-  theme(legend.position = 'none', plot.title = element_text(hjust = 0.5, face = 'bold'))
+  labs(triangle_height = '') + 
+  guides(triangle_height = guide_legend(order=1, reverse=TRUE, label.position = 'bottom'), color = 'none', fill = 'none', size = 'none') + 
+  theme(legend.position = 'bottom',
+        plot.title = element_text(hjust = 0.5, face = 'bold'))
 
 ggsave(here("img/nyt_decreased_counties.png"), width = 10, height = 8)
 ggsave(here("img/nyt_decreased_counties.jpeg"), width = 10, height = 8)

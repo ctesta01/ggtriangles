@@ -63,7 +63,7 @@ I originally created this because I wanted to be able to render something like
 the NYTimes maps of where COVID-19 death rates had increased and decreased since
 vaccines were widely made available to adults.
 
-#### origianl nytimes version:
+#### original nytimes version:
 
 ![nyt map of where covid death rates increased since vaccines became available](img/nyt_increased_orig.png)
 ![nyt map of where covid death rates decreased since vaccines became available](img/nyt_decreased_orig.png)
