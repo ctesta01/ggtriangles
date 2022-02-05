@@ -1,57 +1,48 @@
 # ggtriangles
 
 `ggtriangles` provides the `geom_triangles()` function which plots isosceles
-triangles with a horizontal base centered at position `(x,y)` with height `z`.
+triangles with their horizontal base centered at position `(x,y)` and variable
+`triangle_height`, `triangle_width`, and `angle` as given by `aes()` arguments
+in the `ggplot2` framework.
 
 **note:** ggtriangles is still under development. 
 
-### an example plot using ggtriangles
-
-![an example of a plot using geom_triangles that shows the results of a sleep study and whether drug 1 or 2 increased participants' sleep hours](img/sleep.png)
-
-
-### to install
-
-    devtools::install_github("ctesta01/ggtriangles")
-    
 ### basic usage
 
     library(ggtriangles)
-    data.frame(x = 1:5) %>%
-      ggplot(aes(x = x, y = x, z = x)) +
+    data.frame(x = seq(0,1,.1)) %>%
+      ggplot(aes(x = x, y = x, triangle_height = x)) +
       geom_triangles()
 
 ![a scatterplot of triangles with varying heights](img/simplest_example.png)
 
+### to install
+
+    devtools::install_github("ctesta01/ggtriangles")
+
+### some example plots using ggtriangles
+
+Read about how to make these in the `vignette('intro-to-ggtriangles')`.
+
+![an example of a plot using geom_triangles that shows the results of a sleep study and whether drug 1 or 2 increased participants' sleep hours](img/sleep.png)
+![an example plot using the iris dataset](img/iris.png)
+
+![an example plot using the mtcars dataset](img/mtcars.png)
+
+![an example of an archimedian spiral based glitch art](img/spiral.png)
+
+
 ### how to get started
 
 Check out the examples available in the help pages by entering `?geom_triangles` into
-R after you've loaded the package. There are also vignettes you can access 
-via `browseVignettes('ggtriangles')`.
-
-
-### some more examples
-
-The code for these is available in `?geom_triangles`.
-
-![ggtriangles example with iris dataset using the triangles height and width 
-to represent sepal length and width](img/iris_example.png)
-
-![ggtriangles example with mtcars dataset using the triangles height and width 
-to represent cylinders and horsepower](img/mtcars_example2.png)
-
-ggtriangles also supports angles as well as transparency!
-
-![ggtriangles also supports angles](img/angles_in_ggtriangles.png)
+R after you've loaded the package. Additionally, `vignette('intro-to-ggtriangles')`
+has the code to produce the figures above.
 
 I think ggtriangles will provide a nice interface both for Rtists who are
 looking to incorporate triangles programmatically in their generative art, as
 well as data visualization creators who are interested in using triangles'
 position, height, width, color, and fill to communicate features of
 their data.
-
-![an example of triangles produced by ggtriangles arranged in a spiral where every 
-triangle points to the next triangle in the inward direction](img/spiral.png)
 
 
 ### motivation
