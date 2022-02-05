@@ -258,7 +258,7 @@ ggplot() +
     mapping = aes(x = X, y = Y, label = state_abbv_med),
     hjust = 0.5, vjust = 0, size = 2.5
   ) + 
-  scale_triangle_height(range = c(-0.0, -.25), n.breaks = 2, breaks = c(-.1, -2.25), labels = c('larger\ndecrease', 'smaller\ndecrease')) + 
+  scale_triangle_height(range = c(-0.0, -.5), n.breaks = 2, breaks = c(-.1, -2.25), labels = c('larger\ndecrease', 'smaller\ndecrease')) + 
   scale_fill_manual(values = c(`TRUE` = lightgreen, `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = darkgreen, `FALSE` = 'white')) +
