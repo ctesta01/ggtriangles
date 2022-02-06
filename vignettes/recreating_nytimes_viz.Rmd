@@ -208,8 +208,8 @@ ggplot() +
           sf::st_coordinates(.) %>%
           as.data.frame()),
     mapping = aes(x = X, y = Y, triangle_height = change),
-    triangle_width = .075, alpha = 0.7,
-    fill = '#c0392b', color = '#c0392b') +
+    triangle_width = .075, lineend = 'butt',
+    fill = '#c0392b', color = '#c0392b', size = 0) +
   geom_text(
     data = state_centers, 
     mapping = aes(x = X, y = Y, label = state_abbv_med),
@@ -218,7 +218,13 @@ ggplot() +
   scale_fill_manual(values = c(`TRUE` = 'lightpink', `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = "#c0392b", `FALSE` = 'white')) +
-  scale_triangle_height(range = c(0.0, .5), n.breaks = 2, breaks = c(.1, 2.25), labels = c('smaller\nincrease', 'larger\nincrease')) + 
+  scale_triangle_height(
+    range = c(0.1, .5),
+    n.breaks = 2,
+    limits = c(0, max(abs(range(counties$change, na.rm=T)))),
+    breaks = c(.1, 2.25),
+    labels = c('smaller\nincrease', 'larger\nincrease')
+    ) + 
   ggtitle("Counties where death rates were higher after vaccines were widely available") + 
   theme_void() + 
   labs(triangle_height = '') + 
@@ -227,8 +233,8 @@ ggplot() +
 
 
 # library(here)
-# ggsave(here("img/nyt_increased_counties.png"), width = 10, height = 8)
-# ggsave(here("img/nyt_increased_counties.jpeg"), width = 10, height = 8)
+ggsave(here("img/nyt_increased_counties.png"), width = 10, height = 8)
+ggsave(here("img/nyt_increased_counties.jpeg"), width = 10, height = 8)
 
 
 
@@ -250,15 +256,21 @@ ggplot() +
           sf::st_coordinates(.) %>%
           as.data.frame()),
     mapping = aes(x = X, y = Y, triangle_height = change),
-    triangle_width = .05, 
+    triangle_width = .075, lineend = 'butt',
     fill = darkgreen, color = darkgreen,
-    legend_y_offset = 0.5) +
+    legend_y_offset = 0.5, size = 0) +
   geom_text(
     data = state_centers, 
     mapping = aes(x = X, y = Y, label = state_abbv_med),
     hjust = 0.5, vjust = 0, size = 2.5
   ) + 
-  scale_triangle_height(range = c(-0.0, -.5), n.breaks = 2, breaks = c(-.1, -2.25), labels = c('larger\ndecrease', 'smaller\ndecrease')) + 
+  scale_triangle_height(
+    range = c(-0.1,-.5),
+    limits = c(-max(abs(range(counties$change, na.rm=T))), 0),
+    n.breaks = 2,
+    breaks = c(-.05,-2.25),
+    labels = c('larger\ndecrease', 'smaller\ndecrease')
+    ) + 
   scale_fill_manual(values = c(`TRUE` = lightgreen, `FALSE` = 'white')) +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = darkgreen, `FALSE` = 'white')) +
