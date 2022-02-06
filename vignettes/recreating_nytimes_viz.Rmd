@@ -25,68 +25,8 @@ library(urbnmapr)
 counties <- get_urbn_map('counties', sf=T)
 states <- get_urbn_map('states', sf=T)
 
-
-# assign random values
-counties$values <- ((rbinom(n = nrow(counties), prob = 0.6, size = 1)-0.5)*2) * rlnorm(n = nrow(counties))
-
-
-# now using geom_triangle ############################################
-
-ggplot() +
-  geom_sf(data = counties,
-          mapping = aes(
-          fill = factor(values > 0),
-          size = factor(values > 0),
-          color = factor(values > 0)
-          )) +
-  geom_sf(data = states, aes(), size = 0.5, color = 'black', fill = NA) +
-  geom_triangles(
-    data =
-      bind_cols(
-        counties %>% filter(values > 0),
-        counties %>% filter(values > 0) %>%
-          sf::st_centroid() %>%
-          sf::st_coordinates(.) %>%
-          as.data.frame()),
-    mapping = aes(x = X, y = Y, z = values),
-    width_scale = 10000, height_scale = 15000,
-    fill = '#c0392b', color = '#c0392b', alpha = 0.8) +
-  scale_fill_manual(values = c(`TRUE` = 'lightpink', `FALSE` = 'white')) +
-  scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
-  scale_color_manual(values = c(`TRUE` = "#c0392b", `FALSE` = 'white')) +
-  theme_void() + 
-  theme(legend.position = 'none')
-
-
 darkgreen <- colorspace::lighten('#4e7c71')
 lightgreen <- colorspace::lighten("#bacac9", amount = 0.5)
-
-ggplot() +
-  geom_sf(data = counties,
-          mapping = aes(
-          fill = factor(values < 0),
-          size = factor(values < 0),
-          color = factor(values < 0)
-          )) +
-  geom_sf(data = states, aes(), size = 0.5, color = 'black', fill = NA) +
-  geom_triangles(
-    data =
-      bind_cols(
-        counties %>% filter(values < 0),
-        counties %>% filter(values < 0) %>%
-          sf::st_centroid() %>%
-          sf::st_coordinates(.) %>%
-          as.data.frame()),
-    mapping = aes(x = X, y = Y, z = values),
-    width = 7, height_scale = .7,
-    fill = darkgreen, color = darkgreen, alpha = 0.8) +
-  scale_fill_manual(values = c(`TRUE` = lightgreen, `FALSE` = 'white')) +
-  scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
-  scale_color_manual(values = c(`TRUE` = darkgreen, `FALSE` = 'white')) +
-  theme_void() + 
-  theme(legend.position = 'none')
-
-
 ```
 
 
@@ -95,10 +35,20 @@ Now do it with NYT data
 ```{r}
 nyt2020 <- readr::read_csv("https://github.com/nytimes/covid-19-data/raw/master/rolling-averages/us-counties-2020.csv")
 nyt2021 <- readr::read_csv("https://github.com/nytimes/covid-19-data/raw/master/rolling-averages/us-counties-2021.csv") 
+nyt_anomalies <- readr::read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/rolling-averages/anomalies.csv")
+```
+
+```{r clean data}
 
 nyt2020avg <- nyt2020 %>% 
   bind_rows(nyt2021 %>% 
   filter(date <= lubridate::ymd("2021-04-19"))) %>% 
+  left_join(
+    nyt_anomalies %>% 
+      filter(type %in% c('deaths', 'both')),
+    by = c('geoid' = 'geoid', 'date' = 'date', 'county' = 'county', 'state' = 'state')
+  ) %>% 
+  filter(is.na(omit_from_rolling_average_on_subgeographies) | omit_from_rolling_average_on_subgeographies != 'yes') %>% 
   filter(date > lubridate::ymd("2020-04-19")) %>% 
   group_by(geoid, county, state) %>% 
   summarize(avg_death_rate = mean(deaths_avg_per_100k, na.rm=T))
@@ -106,6 +56,12 @@ nyt2020avg <- nyt2020 %>%
 nyt2021avg <- nyt2021 %>% group_by(geoid, county, state) %>% 
   filter(date > lubridate::ymd("2021-04-19")) %>% 
   filter(date <= lubridate::ymd("2021-12-28")) %>% 
+ left_join(
+    nyt_anomalies %>% 
+      filter(type %in% c('deaths', 'both')),
+    by = c('geoid' = 'geoid', 'date' = 'date', 'county' = 'county', 'state' = 'state')
+  ) %>% 
+ filter(is.na(omit_from_rolling_average_on_subgeographies) | omit_from_rolling_average_on_subgeographies != 'yes') %>% 
   summarize(avg_death_rate = mean(deaths_avg_per_100k, na.rm=T))
 
 
@@ -113,19 +69,12 @@ library(magrittr)
 nyt2020avg %<>% rename(avg2020 = avg_death_rate)
 nyt2021avg %<>% rename(avg2021 = avg_death_rate)
 
-
 avg_death_rates <- nyt2020avg %<>% left_join(nyt2021avg)
-
-head(avg_death_rates)
-
 avg_death_rates %<>% mutate(change = avg2021 - avg2020)
-
 avg_death_rates %<>% mutate(fips = stringr::str_extract(geoid, "[0-9]+"))
 
 counties <- urbnmapr::get_urbn_map('counties', sf = TRUE)
-
 counties %<>% left_join(avg_death_rates %>% select(fips, change), by = c('county_fips' = 'fips'))
-
 
 state_abbreviations <- 
 tibble::tribble(
@@ -188,9 +137,12 @@ state_centers_xy <- sf::st_coordinates(state_centers)
 state_centers %<>% bind_cols(state_centers_xy %>% as.data.frame())
 state_centers %<>% left_join(state_abbreviations)
 
-
 lower_threshold <- 0.01
+upper_threshold <- -0.01
 
+```
+
+```{r increase plot}
 ggplot() +
   geom_sf(data = counties,
           mapping = aes(
@@ -219,7 +171,7 @@ ggplot() +
   scale_size_manual(values = c(`TRUE` = .05, `FALSE` = 0)) +
   scale_color_manual(values = c(`TRUE` = "#c0392b", `FALSE` = 'white')) +
   scale_triangle_height(
-    range = c(0.1, .5),
+    range = c(0.1, .75),
     n.breaks = 2,
     limits = c(0, max(abs(range(counties$change, na.rm=T)))),
     breaks = c(.1, 2.25),
@@ -233,12 +185,11 @@ ggplot() +
 
 
 # library(here)
-ggsave(here("img/nyt_increased_counties.png"), width = 10, height = 8)
-ggsave(here("img/nyt_increased_counties.jpeg"), width = 10, height = 8)
+# ggsave(here("img/nyt_increased_counties.png"), width = 10, height = 8)
+# ggsave(here("img/nyt_increased_counties.jpeg"), width = 10, height = 8)
+```
 
-
-
-upper_threshold = -0.01
+```{r decrease plot}
 ggplot() +
   geom_sf(data = counties,
           mapping = aes(
@@ -265,7 +216,7 @@ ggplot() +
     hjust = 0.5, vjust = 0, size = 2.5
   ) + 
   scale_triangle_height(
-    range = c(-0.1,-.5),
+    range = c(-0.1,-.75),
     limits = c(-max(abs(range(counties$change, na.rm=T))), 0),
     n.breaks = 2,
     breaks = c(-.05,-2.25),

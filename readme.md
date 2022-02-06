@@ -80,11 +80,13 @@ use-case for `ggtriangles`.
 ![](img/nyt_decreased_counties.png)
 
 You can check out how I did it in the vignette available through the vignette
-available in 
-`browseVignettes('ggtriangles')` or the source code,
+available in `browseVignettes('ggtriangles')` or the source code,
 [vignettes/recreating_nytimes_viz.Rmd](vignettes/recreating_nytimes_viz.Rmd).
 Note that these figures are provided purely as examples and not meant for
-decision making purposes or scientific usage.
+decision making purposes or scientific usage. I'm pleased with how well I was
+able to replicate their plot of where death rates had increased, but I can't say
+for sure why I appear to be getting much larger decreases in the COVID-19 death
+rates per 100,000 than they did in their analysis.
 
 
 ### feedback
